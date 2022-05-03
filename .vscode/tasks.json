@@ -1,0 +1,31 @@
+{
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "C/C++: g++.exe build",
+            "command": "D:\\CODE\\mingw64\\bin\\g++.exe",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                //"${file}",
+                "${cwd}//src//*.cpp",
+                "${cwd}//app//*.cpp",
+                //"-s", // 确定好不再调试后使用此命令，可减少exe体积，但不能再调试，相当于编译release版本?
+                "-o",
+                "${cwd}//bin//alg1.exe"
+            ],
+            "options": {
+                "cwd": "${fileDirname}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "调试器生成的任务。"
+        }
+    ],
+    "version": "2.0.0"
+}
