@@ -11,6 +11,10 @@ void hello(void)
     puts("hello, world!");
 }
 
+bool compare(const WgNode& time1, const WgNode& time2)
+{
+    return time1.time_start < time2.time_end;
+}
 
 ExtendNode *save_filedata(const char *filepath)
 {
@@ -224,7 +228,7 @@ WgNode *get_weighted_value(const ExtendNode *base, const ExtendNode *extend)
             {
                 WgNode *wg_fresh = (WgNode*)malloc(sizeof(WgNode));
                 wg_fresh->wgname = copyname;
-                wg_fresh->time_start = -1; // 若全部冲突而被消除，则令权值节点interval区间为[0,0]
+                wg_fresh->time_start = -1; // 若全部冲突而被消除，则令权值节点interval区间为[-1,0]
                 wg_fresh->time_end = 0;
 
                 wg_move->next = wg_fresh;
@@ -259,7 +263,7 @@ WgNode *get_weighted_value(const ExtendNode *base, const ExtendNode *extend)
         {
             WgNode *wg_fresh = (WgNode*)malloc(sizeof(WgNode));
             wg_fresh->wgname = copyname;
-            wg_fresh->time_start = -1; // 若全部冲突而被消除，则令权值节点interval区间为[0,0]
+            wg_fresh->time_start = -1; // 若全部冲突而被消除，则令权值节点interval区间为[-1,0]
             wg_fresh->time_end = 0;
 
             wg_move->next = wg_fresh;
@@ -296,7 +300,7 @@ WgNode *get_weighted_value(const ExtendNode *base, const ExtendNode *extend)
         {
             WgNode *wg_fresh = (WgNode*)malloc(sizeof(WgNode));
             wg_fresh->wgname = copyname;
-            wg_fresh->time_start = -1; // 若全部冲突而被消除，则令权值节点interval区间为[0,0]
+            wg_fresh->time_start = -1; // 若全部冲突而被消除，则令权值节点interval区间为[-1,0]
             wg_fresh->time_end = 0;
 
             wg_move->next = wg_fresh;
@@ -333,7 +337,7 @@ WgNode *get_weighted_value(const ExtendNode *base, const ExtendNode *extend)
         {
             WgNode *wg_fresh = (WgNode*)malloc(sizeof(WgNode));
             wg_fresh->wgname = copyname;
-            wg_fresh->time_start = -1; // 若全部冲突而被消除，则令权值节点interval区间为[0,0]
+            wg_fresh->time_start = -1; // 若全部冲突而被消除，则令权值节点interval区间为[-1,0]
             wg_fresh->time_end = 0;
 
             wg_move->next = wg_fresh;
@@ -360,124 +364,6 @@ WgNode *get_weighted_value(const ExtendNode *base, const ExtendNode *extend)
     return wg_head->next;
 }
 
-
-bool prefix_prun_candi(WgNode *pre, WgNode *candi)
-{
-    WgNode *wg_base = pre;
-    WgNode *wg_ext = candi;
-
-    vector<vector<int>> intervals(2);
-    char *copyname = wg_base->wgname;
-    while ((NULL != wg_base) && (NULL != wg_ext))
-    {
-        if (0==strcmpi(copyname, wg_base->wgname) && (0 == strcmpi(copyname, wg_ext->wgname)))
-        {
-            intervals[0].push_back(wg_base->time_start);
-            intervals[1].push_back(wg_base->time_end);
-            intervals[0].push_back(wg_ext->time_start);
-            intervals[1].push_back(wg_ext->time_end);
-
-            wg_base = wg_base->next;
-            wg_ext = wg_ext->next;
-            continue;
-        }
-        else if(0==strcmpi(copyname, wg_base->wgname) && (0 != strcmpi(copyname, wg_ext->wgname)))
-        {
-            intervals[0].push_back(wg_base->time_start);
-            intervals[1].push_back(wg_base->time_end);
-            wg_base = wg_base->next;
-            continue;        
-        }
-        else if (0 !=strcmpi(copyname, wg_base->wgname) && (0 == strcmpi(copyname, wg_ext->wgname)))
-        {
-            intervals[0].push_back(wg_ext->time_start);
-            intervals[1].push_back(wg_ext->time_end);
-            wg_ext = wg_ext->next;
-            continue;        
-        }
-        else if (0 !=strcmpi(copyname, wg_base->wgname) && (0 != strcmpi(copyname, wg_ext->wgname)))
-        {
-            get_nonoverlapping_intervals(intervals);
-            if (intervals[0].empty())
-            {
-
-            }
-            else
-            {
-                for (int i=0; i<intervals[0].size(); i++)
-                {
-                 
-                }
-            }
-            /* clear二维vector要各个分别clear，不要直接用二维vector.clear */
-            intervals[0].clear();
-            intervals[1].clear();
-            copyname = wg_base->wgname;
-        }
-    }
-    
-    if ((NULL == wg_base) && (NULL == wg_ext))
-    {
-        get_nonoverlapping_intervals(intervals);
-        if (intervals[0].empty())
-        {
-
-        }
-        else
-        {
-            for (int i=0; i<intervals[0].size(); i++)
-            {
-
-            }           
-        }
-        intervals[0].clear();
-        intervals[1].clear();
-    }
-    else if ((NULL != wg_base) && (NULL == wg_ext))
-    {
-        while (NULL != wg_base)
-        {
-            intervals[0].push_back(wg_base->time_start);
-            intervals[1].push_back(wg_base->time_end);
-            wg_base = wg_base->next;
-        }
-        get_nonoverlapping_intervals(intervals);
-        if (intervals[0].empty())
-        {
-
-        }
-        else
-        {
-            for (int i=0; i<intervals[0].size(); i++)
-            {
-                 
-            }           
-        }
-        intervals[0].clear();
-        intervals[1].clear();
-    }
-    else if ((NULL == wg_base) && (NULL != wg_ext))
-    {
-        while (NULL != wg_ext)
-        {
-            intervals[0].push_back(wg_ext->time_start);
-            intervals[1].push_back(wg_ext->time_end);
-            wg_ext = wg_ext->next;
-        }
-        get_nonoverlapping_intervals(intervals);
-        if (intervals[0].empty())
-        {
-
-        }
-        else
-        {
-       
-        }
-        intervals[0].clear();
-        intervals[1].clear();
-    }
-
-}
 
 void ConWG(ExtendNode *filedata_head)
 {
@@ -567,19 +453,862 @@ void ConWG(ExtendNode *filedata_head)
     // }
     // fclose(fwgraph);
 
-    fprintf(stdout, "succeed to create weighted graph!");
+    fprintf(stdout, "succeed to create weighted graph!\n");
     return;
 }
 
+
 void get_pre_and_candi(BiCluster *current_bic)
 {
-    ;
+    HeadNode *wgbase = WGhead->next;
+    ExtendNode *bic_extnode = current_bic->extlist;
+    ExtendNode *base_extnode = NULL;
+    WgNode *func1,*func2,*func3;
+
+    /* 依次和权值图对应链比较 */
+    while (NULL != wgbase)
+    {
+        /* 找当前双聚类的前驱和候选扩展节点 */
+        if (0 == strcmp(wgbase->headname, bic_extnode->extname))
+        {
+            bic_extnode = bic_extnode->next;
+            base_extnode = wgbase->extnode;
+            /* 找前驱 */
+            ExtendNode *pre_head = (ExtendNode*)malloc(sizeof(ExtendNode));
+            ExtendNode *pre_move = pre_head;
+            pre_move->next = NULL;
+            while((NULL != bic_extnode) && (NULL != base_extnode))
+            {
+                if (0 == strcmp(base_extnode->extname, bic_extnode->extname))
+                {
+                    bic_extnode = bic_extnode->next;
+                    base_extnode = base_extnode->next;
+                }
+                else
+                {
+                    /* 在到达null之前有不同，说明此时base->extnode这个节点为当前双聚类的前驱 */
+                    ExtendNode *pre_fresh = (ExtendNode*)malloc(sizeof(ExtendNode));
+                    pre_fresh->extname = base_extnode->extname;
+                    pre_fresh->wgnode = NULL;
+                    
+                    pre_move->next = pre_fresh;
+                    pre_fresh->next = NULL;
+                    pre_move = pre_fresh;
+                    
+                    base_extnode = base_extnode->next;
+                }
+            }
+            /* 将前驱链接到当前双聚类的prelist */
+            current_bic->prelist = pre_head->next;
+            free(pre_head);
+            pre_head = NULL;
+
+            /* base->extnode不为空，说明此后的节点为当前双聚类的候选 */
+            ExtendNode *candi_head = (ExtendNode*)malloc(sizeof(ExtendNode));
+            ExtendNode *candi_move = candi_head;
+            candi_move->next = NULL;
+            while (NULL != base_extnode)
+            {
+                ExtendNode *candi_fresh = (ExtendNode*)malloc(sizeof(ExtendNode));
+                candi_fresh->extname = base_extnode->extname;
+                candi_fresh->wgnode = NULL;
+                
+                candi_move->next = candi_fresh;
+                candi_fresh->next = NULL;
+                candi_move = candi_fresh;
+
+                base_extnode = base_extnode->next;
+            }
+            /* 将候选链接到当前双聚类的candilist */
+            current_bic->candilist = candi_head->next;
+            free(candi_head);
+            candi_head = NULL;
+
+            /* 进入权值图对应链，找到所有前驱和候选之后，退出 */
+            break;
+        }
+        wgbase = wgbase->next;
+    }
+
+    
+    /* 计算前驱和候选节点的权值 */
+    WgNode* jointpairs[100] = {NULL};//100:预设的所有扩展节点数量,这里预设最大为100个任务
+    wgbase = WGhead->next;
+    
+    bic_extnode = current_bic->extlist;
+    int cnt_jointpairs = 1; // 向下的扩展需要求交集的数量，例如T1T2T3需要T1T2、T1T3、T2T3三对.特别注意从1开始是因为这个1表示相交的pair中的当前双聚类已记录
+    while ( NULL != bic_extnode)
+    {
+        cnt_jointpairs++;
+        bic_extnode = bic_extnode->next;
+    }
+    bic_extnode = current_bic->extlist;
+
+    ExtendNode *candidate = current_bic->candilist;
+    ExtendNode *previous = current_bic->prelist;
+    int i = 0;
+    
+
+    while (NULL != candidate)
+    {
+        i = 0;
+        jointpairs[0] = current_bic->wglist;
+        while (NULL != wgbase)
+        {
+            if ( 0 == strcmpi(wgbase->headname, candidate->extname))
+            {
+                bic_extnode = current_bic->extlist;
+                base_extnode = wgbase->extnode;
+                while (NULL != bic_extnode)
+                {
+                    if ( 0 == strcmpi(base_extnode->extname, bic_extnode->extname))
+                    {
+                        i++;
+                        jointpairs[i] = base_extnode->wgnode;
+
+                        base_extnode = base_extnode->next;
+                        bic_extnode = bic_extnode->next;
+                    }
+                    else
+                    {
+                        base_extnode = base_extnode->next;
+                    }
+                }
+
+
+                func1 = (WgNode*)malloc(sizeof(WgNode));
+                func2 = func1;
+                vector<WgNode> time;
+                char *func_category = jointpairs[0]->wgname;
+                bool endflag = false;
+                while (NULL != func_category)
+                {
+                    for (i=0; i<cnt_jointpairs; i++)
+                    {
+                        while (0 == strcmpi(jointpairs[i]->wgname, func_category)) 
+                        {
+                            WgNode buf;
+                            buf.time_start = jointpairs[i]->time_start;
+                            buf.time_end = jointpairs[i]->time_end;
+                            time.push_back(buf);
+                            if (NULL != jointpairs[i]->next)
+                            {
+                                jointpairs[i] = jointpairs[i]->next;
+                            }
+                            else
+                            {
+                                endflag =true;
+                                break;
+                            }
+                        }
+                    }
+
+                    /* 处理每个func_category的intervals */
+                    sort(time.begin(), time.end(),compare);
+                    auto it = time.begin();
+                    auto iter = it;
+                    int cnt =0;
+                    while(it != time.end())
+                    {
+                        cnt = 0;
+                        if ((*it).time_end == 0)
+                        {
+                            //puts("find end == 0");
+                            func3 = (WgNode*)malloc(sizeof(WgNode));
+                            func3->wgname = func_category;
+                            func3->time_start = -1;
+                            func3->time_end = 0;
+
+                            func2->next = func3;
+                            func3->next = NULL;
+                            func2 = func3;
+                            break;
+                        }
+                        
+                        for (iter = time.begin(); iter != time.end(); iter++)
+                        {
+                            if ((*it)==(*iter))
+                            {
+                                cnt++;
+                            }
+                        }
+                        if (cnt == (cnt_jointpairs-1))
+                        {
+                            func3 = (WgNode*)malloc(sizeof(WgNode));
+                            func3->wgname = func_category;
+                            func3->time_start = (*it).time_start;
+                            func3->time_end = (*it).time_end;
+
+                            func2->next = func3;
+                            func3->next = NULL;
+                            func2 = func3;
+                        }
+                        it += cnt;
+                    }
+
+                    time.clear();
+                    if (!endflag)
+                    {
+                        func_category = jointpairs[0]->wgname;
+                    }
+                    else
+                    {
+                        func_category = NULL;
+                    }
+                }
+
+                
+                candidate->wgnode = func1->next;
+                func1 = NULL;
+                
+                wgbase = wgbase->next;
+                break;
+            }
+            else
+            {
+                wgbase = wgbase->next;
+            }
+        }
+        candidate = candidate->next;
+    }
+    
+
+    while (NULL != previous)
+    {
+        i=0;
+        jointpairs[0] = current_bic->wglist;
+        while (NULL !=  wgbase)
+        {
+            if ( 0 == strcmpi(wgbase->headname, previous->extname))
+            {
+                bic_extnode = current_bic->extlist;
+                base_extnode = wgbase->extnode;
+                while (NULL != bic_extnode)
+                {
+                    if ( 0 == strcmpi(base_extnode->extname, bic_extnode->extname))
+                    {
+                        i++;
+                        jointpairs[i] = base_extnode->wgnode;
+
+                        base_extnode = base_extnode->next;
+                        bic_extnode = bic_extnode->next;
+                    }
+                    else
+                    {
+                        base_extnode = base_extnode->next;
+                    }
+                }
+
+                func1 = (WgNode*)malloc(sizeof(WgNode));
+                func2 = func1;
+                vector<WgNode> time;
+                char *func_category = jointpairs[0]->wgname;
+                bool endflag = false;
+                while (NULL != func_category)
+                {
+                    for (i=0; i<cnt_jointpairs; i++)
+                    {
+                        while (0 == strcmpi(jointpairs[i]->wgname, func_category)) 
+                        {
+                            WgNode buf;
+                            buf.time_start = jointpairs[i]->time_start;
+                            buf.time_end = jointpairs[i]->time_end;
+                            time.push_back(buf);
+                            if (NULL != jointpairs[i]->next)
+                            {
+                                jointpairs[i] = jointpairs[i]->next;
+                            }
+                            else
+                            {
+                                endflag =true;
+                                break;
+                            }
+                        }
+                    }
+                    /* 处理每个func_category的intervals */
+
+                    sort(time.begin(), time.end(),compare);
+                    auto it = time.begin();
+                    auto iter = it;
+                    int cnt =0;
+                    while(it != time.end())
+                    {
+                        cnt = 0;
+                        if ((*it).time_end == 0)
+                        {
+                            //puts("find end == 0");
+                            func3 = (WgNode*)malloc(sizeof(WgNode));
+                            func3->wgname = func_category;
+                            func3->time_start = -1;
+                            func3->time_end = 0;
+
+                            func2->next = func3;
+                            func3->next = NULL;
+                            func2 = func3;
+                            break;
+                        }
+                        
+                        for (iter = time.begin(); iter != time.end(); iter++)
+                        {
+                            if ((*it)==(*iter))
+                            {
+                                cnt++;
+                            }
+                        }
+                        if (cnt == (cnt_jointpairs-1))
+                        {
+                            func3 = (WgNode*)malloc(sizeof(WgNode));
+                            func3->wgname = func_category;
+                            func3->time_start = (*it).time_start;
+                            func3->time_end = (*it).time_end;
+
+                            func2->next = func3;
+                            func3->next = NULL;
+                            func2 = func3;
+                        }
+                        it += cnt;
+                    }
+
+                    time.clear();
+                    if (!endflag)
+                    {
+                        func_category = jointpairs[0]->wgname;
+                    }
+                    else
+                    {
+                        func_category = NULL;
+                    }
+                }
+
+                previous->wgnode = func1->next;
+                func1 = NULL;
+
+                wgbase = wgbase->next;
+                break;
+            }
+            else
+            {
+                wgbase = wgbase->next;
+            }
+        }
+        previous = previous->next;
+    }
+
+    /* 判断候选/前驱节点的权值是否每一类都不存在,若都不存在,则删除该节点
+        bic_extnode;func2用在删除节点时记录地址
+        save_ext = bic_extnode
+        save_wg = func2
+    */
+
+    candidate = current_bic->candilist;
+    bool delete_flag;
+    while ( NULL != candidate )
+    {
+        delete_flag = true;
+        func1 = candidate->wgnode;
+        while (NULL != func1)
+        {
+            if (func1->time_end != 0)
+            {
+                delete_flag = false;
+                break;
+            }
+            else
+            {
+                func1 = func1->next;
+            }
+        }
+        if (delete_flag)
+        {
+           /* 若此candidate需要删除，那么其下的wgnode全删 */
+            func1 = candidate->wgnode;
+            while ( NULL!= func1)
+            {
+                func2 = func1->next;
+                free(func1);
+                func1 = func2;
+            }
+            /* 主要是看第一个candidate删没删 */
+            if (candidate == current_bic->candilist)
+            {
+                /* 第一个candidate删了 */
+                current_bic->candilist = candidate->next;// 因为candidate不是全删，只删除此candi，故在更新candidate之前需要先更新current_bic->candilist指向
+                bic_extnode = candidate;// 记录需要删除的candidate节点地址
+                candidate = candidate->next;// 更新candidate指向下一个
+                free(bic_extnode);
+                bic_extnode = current_bic->candilist;
+                continue;
+            }
+            else
+            {
+                /* 第一个candidate没删 */
+                bic_extnode->next = candidate->next;
+                base_extnode = candidate;
+                candidate = candidate->next;
+                free(base_extnode);
+                continue;
+            }
+
+        }
+        else
+        {
+            bic_extnode = candidate;
+            candidate = candidate->next;
+        }
+    }
+
+
+    previous = current_bic->prelist;
+    while ( NULL != previous )
+    {
+        delete_flag = true;
+        func1 = previous->wgnode;
+        while (NULL != func1)
+        {
+            if (func1->time_end != 0)
+            {
+                delete_flag = false;
+                break;
+            }
+            else
+            {
+                func1 = func1->next;
+            }
+        }
+        if (delete_flag)
+        {
+           /* 若此candidate需要删除，那么其下的wgnode全删 */
+            func1 = previous->wgnode;
+            while ( NULL!= func1)
+            {
+                func2 = func1->next;
+                free(func1);
+                func1 = func2;
+            }
+            /* 主要是看第一个candidate删没删 */
+            if (previous == current_bic->prelist)
+            {
+                /* 第一个candidate删了 */
+                current_bic->prelist = previous->next;// 因为candidate不是全删，只删除此candi，故在更新candidate之前需要先更新current_bic->candilist指向
+                bic_extnode = previous;// 记录需要删除的candidate节点地址
+                previous = previous->next;// 更新candidate指向下一个
+                free(bic_extnode);
+                bic_extnode = current_bic->prelist;
+                continue;
+            }
+            else
+            {
+                /* 第一个candidate没删 */
+                bic_extnode->next = previous->next;
+                base_extnode = previous;
+                previous = previous->next;
+                free(base_extnode);
+                continue;
+            }
+
+        }
+        else
+        {
+            bic_extnode = previous;
+            previous = previous->next;
+        }
+    }
+}
+
+bool isprun(const ExtendNode *previ, const ExtendNode *candi)
+{
+    vector<char*> pre;
+    vector<char*> can;
+    WgNode *previous = previ->wgnode;
+    WgNode *candidate = candi->wgnode;
+    while (NULL != previous)
+    {
+        if (pre.empty())
+        {
+            if (previous->time_end != 0)
+            {
+                pre.push_back(previous->wgname);
+            }
+            previous = previous->next;
+        }
+        else
+        {
+            if (0 == strcmpi(pre.back(),previous->wgname))
+            {
+                previous = previous->next;
+            }
+            else
+            {
+                if (previous->time_end != 0)
+                { 
+                    pre.push_back(previous->wgname);
+                }
+                previous = previous->next;
+            }
+        }
+    }
+
+
+    while (NULL != candidate)
+    {
+        if (can.empty())
+        {
+            if (candidate->time_end != 0)
+            {
+                can.push_back(candidate->wgname);
+            }
+            candidate = candidate->next;
+        }
+        else
+        {
+            if (0 == strcmpi(can.back(),candidate->wgname))
+            {
+                candidate = candidate->next;
+            }
+            else
+            {
+                if (candidate->time_end !=0)
+                {    
+                    can.push_back(candidate->wgname);
+                }
+                candidate = candidate->next;
+            }
+        }
+    }
+
+    auto iter_can = can.begin();
+    auto iter_pre = pre.begin();
+    while (iter_can != can.end())
+    {
+        for (iter_pre = pre.begin(); iter_pre != pre.end(); iter_pre++)
+        {
+            if (0 == strcmpi((*iter_can),(*iter_pre)))
+            {
+                break;
+            }
+        }
+        if (iter_pre == pre.end())
+        {
+            return false;// 如果存在候选有某类wgnode，但前驱没有，则不能剪枝
+        }
+        else
+        {
+            iter_can++;
+        }
+    }
+
+    /* 前驱和候选的wgnode，同一类型的权值节点，除去相同的部分，剩下的全是follows或者meets关系，才能剪枝 */
+    for (iter_can = can.begin(); iter_can != can.end(); iter_can++)
+    {
+        candidate = candi->wgnode;
+        while (NULL != candidate)
+        {
+            if (atoi(candidate->wgname+1) < atoi((*iter_can)+1))
+            {
+                candidate = candidate->next;
+                continue;
+            }
+            else if (atoi(candidate->wgname+1) == atoi((*iter_can)+1))
+            {
+                previous = previ->wgnode;
+                while (NULL != previous)
+                {
+                    if (atoi(previous->wgname+1) < atoi(candidate->wgname+1))
+                    {
+                        previous = previous->next;
+                        continue;
+                    }
+                    else if (atoi(previous->wgname+1) == atoi(candidate->wgname+1))
+                    {
+                        if (previous==candidate)
+                        {
+                            previous = previous->next;
+                            continue;
+                        }
+
+                        if ((previous->time_start != previous->time_end) && (candidate->time_start != candidate->time_end))
+                        {
+                            if (max(previous->time_start,candidate->time_start) < min(previous->time_end, candidate->time_end))
+                            {
+                                return false;
+                            }
+                        }
+                        else if ((previous->time_start != previous->time_end) && (candidate->time_start == candidate->time_end))
+                        {
+                            if ((previous->time_start < candidate->time_start) && (candidate->time_end < previous->time_end))
+                            {
+                                return false;
+                            }
+                        }
+                        else if ((previous->time_start == previous->time_end) && (candidate->time_start != candidate->time_end))
+                        {
+                            if  ((candidate->time_start<previous->time_start) && (previous->time_end<candidate->time_end))
+                            {
+                                return false;
+                            }
+                        }
+                        else if ((previous->time_start == previous->time_end) && (candidate->time_end == candidate->time_end))
+                        {
+                            if (previous->time_start==candidate->time_start)
+                            {
+                                return false;
+                            }
+                        }
+
+                        previous = previous->next;
+                        continue;
+                    }
+                    else if (atoi(previous->wgname+1) > atoi(candidate->wgname+1))
+                    {
+                        break;
+                    }
+                }
+                candidate = candidate->next;
+                continue;
+            }
+            else if (atoi(candidate->wgname+1) > atoi((*iter_can)+1))
+            {
+                break;
+            }
+        }
+    }
+
+    /* 运行到这里，说明满足剪枝条件，需要剪枝 */
+    return true;
+
 }
 
 
 void pruning(BiCluster *current_bic)
 {
-    ;
+    ExtendNode *candidate, *previous, *move;
+    WgNode * wg1, *wg2;
+
+    /* 剪枝判断 */
+    candidate = current_bic->candilist;
+    bool prun_flag = false;
+    while (NULL != candidate) // 每一个候选节点
+    {
+        prun_flag = false;
+        previous = current_bic->prelist;
+        while (NULL != previous) // 用前驱节点来判断
+        {
+            prun_flag = isprun(previous, candidate);
+            if (prun_flag) // 存在一个前驱节点能将此候选节点剪枝，则删除此候选节点
+            {
+                if (candidate == current_bic->candilist) // 第一个候选节点
+                {
+                    current_bic->candilist = candidate->next;
+                    wg1 = candidate->wgnode;
+                    while(NULL != wg1)
+                    {
+                        wg2 = wg1;
+                        wg1 = wg1->next;
+                        free(wg2);
+                        wg2 = NULL;
+                    }
+                    free(candidate);
+                    candidate = current_bic->candilist;
+                }
+                else
+                {
+                    move->next = candidate->next;
+                    wg1 = candidate->wgnode;
+                    while (NULL != wg1)
+                    {
+                        wg2 = wg1;
+                        wg1 = wg1->next;
+                        free(wg2);
+                        wg2 = NULL;
+                    }
+                    free(candidate);
+                    candidate = move->next;
+                }
+                break;// 跳出，判断下一个候选节点
+            }
+            previous = previous->next;
+        }
+        if (!prun_flag)
+        {
+            move = candidate;
+            candidate = candidate->next;
+        }
+    }
+
+    /* 如果存在前驱节点的权值点类别是当前双聚类权值类别的超集，则当前双聚类不输出 */
+    previous = current_bic->prelist;
+    vector<char*> pre;
+    vector<char*> cur;
+    while(NULL != previous)
+    {
+        wg1 = previous->wgnode;
+        while (NULL != wg1)
+        {
+            if (pre.empty())
+            {
+                if (wg1->time_end != 0)
+                {
+                    pre.push_back(wg1->wgname);
+                }
+                wg1 = wg1->next;
+            }
+            else
+            {
+                if (0 == strcmpi(pre.back(),wg1->wgname))
+                {
+                    wg1 = wg1->next;
+                }
+                else
+                {
+                    if (wg1->time_end != 0)
+                    { 
+                        pre.push_back(wg1->wgname);
+                    }
+                    wg1 = wg1->next;
+                }
+            }
+        }
+
+        wg2 = current_bic->wglist;
+        while (NULL != wg2)
+        {
+            if (cur.empty())
+            {
+                if (wg2->time_end != 0)
+                {
+                    cur.push_back(wg2->wgname);
+                }
+                wg2 = wg2->next;
+            }
+            else
+            {
+                if (0 == strcmpi(cur.back(),wg2->wgname))
+                {
+                    wg2 =wg2->next;
+                }
+                else
+                {
+                    if (wg2->time_end != 0)
+                    { 
+                        cur.push_back(wg2->wgname);
+                    }
+                    wg2 = wg2->next;
+                }
+            }
+        }
+
+        auto iter_cur = cur.begin();
+        auto iter_pre = pre.begin();
+        while (iter_cur != cur.end())
+        {
+            int cnt = count(pre.begin(),pre.end(),(*iter_cur));
+            if (cnt > 0)
+            {
+                iter_cur++;
+                continue;
+            }
+            else if(cnt == 0)
+            {
+                break;
+            }
+        }
+        if (iter_cur == cur.end())
+        {
+            current_bic->flag_output = false;
+            break;// 找到前驱节点使当前双聚类不输出后，跳出
+        }
+        previous = previous->next;
+    }    
+    
+
+    /* 
+        如果存在候选节点的权值点类别是当前双聚类权值类别的超集，则当前双聚类不输出
+        这里用previous指向candidate 
+    */
+    candidate = current_bic->candilist;
+    previous = candidate;
+    pre.clear();
+    cur.clear();
+    while(NULL != previous)
+    {
+        wg1 = previous->wgnode;
+        while (NULL != wg1)
+        {
+            if (pre.empty())
+            {
+                if (wg1->time_end != 0)
+                {
+                    pre.push_back(wg1->wgname);
+                }
+                wg1 = wg1->next;
+            }
+            else
+            {
+                if (0 == strcmpi(pre.back(),wg1->wgname))
+                {
+                    wg1 = wg1->next;
+                }
+                else
+                {
+                    if (wg1->time_end != 0)
+                    { 
+                        pre.push_back(wg1->wgname);
+                    }
+                    wg1 = wg1->next;
+                }
+            }
+        }
+
+        wg2 = current_bic->wglist;
+        while (NULL != wg2)
+        {
+            if (cur.empty())
+            {
+                if (wg2->time_end != 0)
+                {
+                    cur.push_back(wg2->wgname);
+                }
+                wg2 = wg2->next;
+            }
+            else
+            {
+                if (0 == strcmpi(cur.back(),wg2->wgname))
+                {
+                    wg2 =wg2->next;
+                }
+                else
+                {
+                    if (wg2->time_end != 0)
+                    { 
+                        cur.push_back(wg2->wgname);
+                    }
+                    wg2 = wg2->next;
+                }
+            }
+        }
+
+        auto iter_cur = cur.begin();
+        auto iter_pre = pre.begin();
+        while (iter_cur != cur.end())
+        {
+            int cnt = count(pre.begin(),pre.end(),(*iter_cur));
+            if (cnt > 0)
+            {
+                iter_cur++;
+                continue;
+            }
+            else if(cnt == 0)
+            {
+                break;
+            }
+        }
+        if (iter_cur == cur.end())
+        {
+            current_bic->flag_output = false;
+            break;
+        }
+        previous = previous->next;
+    }
 }
 
 
@@ -635,7 +1364,7 @@ void extend_mining(BiCluster *current_bic)
     ExtendNode *base_ext = NULL, *base_ext1 = NULL;
     WgNode *Wvalue0 = NULL, *Wvalue1 = NULL, *Wvalue_move = NULL,*Wvalue_fresh = NULL;
     BiCluster *next_bic = NULL;
-    bool flag_conbic = false;
+    bool flag_prun = false;
 
     /* 
         if负责造基础双聚类，也就是只有两个扩展节点的
@@ -658,147 +1387,15 @@ void extend_mining(BiCluster *current_bic)
                 
                 /* 看需要构造的基础双聚类是否能利用其前驱剪枝掉，如果可以，也不构造 */
                 base_ext1 = wgbase->extnode;
-                flag_conbic = false;
+                flag_prun = false;
                 /* base_ext1 != base_ext说明是ext1是ext的前驱 */
                 while (base_ext1 != base_ext)
                 {
                     /* 应用剪枝策略判断 */
-                    Wvalue0 = base_ext->wgnode;
-                    Wvalue1 = base_ext1->wgnode; 
-                    bool flag_prun = true;
-
-
-
-                    // char *copy_wgname = Wvalue1->wgname;
-                    // Wvalue_move = Wvalue0;
-                    
-                    // while (NULL != Wvalue1)
-                    // {
-                    //     while (0 == strcmp(copy_wgname, Wvalue0->wgname))
-                    //     {
-                    //         if ((Wvalue0->time_start == Wvalue1->time_start) && (Wvalue0->time_end==Wvalue1->time_end))
-                    //         {
-                    //             Wvalue0 = Wvalue0->next;
-                    //             Wvalue1 = Wvalue1->next;
-                    //         }
-                    //         else if ((Wvalue0->time_start != Wvalue0->time_end) && (Wvalue1->time_start != Wvalue1->time_end))
-                    //         {
-                    //             if (max(Wvalue0->time_start, Wvalue1->time_start) < min(Wvalue0->time_end, Wvalue1->time_end))
-                    //             {
-                    //                 flag_prun = false;
-                    //                 break;
-                    //             }
-                    //             else
-                    //             {
-                    //                 Wvalue0 = Wvalue0->next;
-                    //                 continue;                                    
-                    //             }
-                    //         }
-                    //         else if ((Wvalue0->time_start == Wvalue0->time_end) && (Wvalue1->time_start != Wvalue1->time_end))
-                    //         {
-                    //             if ((Wvalue1->time_start < Wvalue0->time_start) && (Wvalue0->time_end < Wvalue1->time_end))
-                    //             {
-                    //                 flag_prun = false;
-                    //                 break;
-                    //             }
-                    //             else
-                    //             {
-                    //                 Wvalue0 = Wvalue0->next;
-                    //                 Wvalue1 = Wvalue1->next;
-                    //             }
-                    //         }
-                    //         else if ((Wvalue0->time_start != Wvalue0->time_end) && (Wvalue1->time_start == Wvalue1->time_end))
-                    //         {
-                    //             if ((Wvalue0->time_start < Wvalue1->time_start) && (Wvalue1->time_end < Wvalue0->time_end))
-                    //             {
-                    //                 flag_prun = false;
-                    //                 break;
-                    //             }
-                    //             else
-                    //             {
-                    //                 Wvalue0 = Wvalue0->next;
-                    //                 Wvalue1 = Wvalue1->next;
-                    //             }
-                    //         }
-
-                    //     }
-                    // }
-
-                    // while (NULL != Wvalue1)
-                    // {
-                    //     while (NULL != Wvalue0)
-                    //     {
-                    //         if (atoi(Wvalue0->wgname+1) == atoi(Wvalue1->wgname+1))
-                    //         {
-                    //             if ((Wvalue0->time_start == Wvalue1->time_start) && (Wvalue0->time_end==Wvalue1->time_end))
-                    //             {
-                    //                 Wvalue0 = Wvalue0->next;
-                    //                 Wvalue1 = Wvalue1->next;
-                    //             }
-                    //             else if ((Wvalue0->time_start != Wvalue0->time_end) && (Wvalue1->time_start != Wvalue1->time_end))
-                    //             {
-                    //                 if (max(Wvalue0->time_start, Wvalue1->time_start) < min(Wvalue0->time_end, Wvalue1->time_end))
-                    //                 {
-                    //                     flag_prun = false;
-                    //                     break;
-                    //                 }
-                    //                 else
-                    //                 {
-                    //                     Wvalue0 = Wvalue0->next;
-                    //                     continue;                                    
-                    //                 }
-                    //             }
-                    //             else if ((Wvalue0->time_start == Wvalue0->time_end) && (Wvalue1->time_start != Wvalue1->time_end))
-                    //             {
-                    //                 if ((Wvalue1->time_start < Wvalue0->time_start) && (Wvalue0->time_end < Wvalue1->time_end))
-                    //                 {
-                    //                     flag_prun = false;
-                    //                     break;
-                    //                 }
-                    //                 else
-                    //                 {
-                    //                     Wvalue0 = Wvalue0->next;
-                    //                     Wvalue1 = Wvalue1->next;
-                    //                 }
-                    //             }
-                    //             else if ((Wvalue0->time_start != Wvalue0->time_end) && (Wvalue1->time_start == Wvalue1->time_end))
-                    //             {
-                    //                 if ((Wvalue0->time_start < Wvalue1->time_start) && (Wvalue1->time_end < Wvalue0->time_end))
-                    //                 {
-                    //                     flag_prun = false;
-                    //                     break;
-                    //                 }
-                    //                 else
-                    //                 {
-                    //                     Wvalue0 = Wvalue0->next;
-                    //                     Wvalue1 = Wvalue1->next;
-                    //                 }
-                    //             }
-                    //         }
-                    //         else if (atoi(Wvalue0->wgname+1) > atoi(Wvalue1->wgname+1))
-                    //         {
-                                
-                    //             Wvalue1 = Wvalue1->next;
-                    //             if (0 != strcmpi(Wvalue1->wgname, Wvalue0->wgname))
-                    //             {
-                    //                 Wvalue0 = base_ext->wgnode;
-                    //             }
-                                
-                    //         }
-                    //         else if (atoi(Wvalue1->wgname+1) > atoi(Wvalue0->wgname+1))
-                    //         {
-                    //             Wvalue0 = Wvalue0->next;
-                    //             if (0 != strcmpi(Wvalue1->wgname, Wvalue0->wgname))
-                    //             {
-                    //                 Wvalue1 = Wvalue1->next;
-                    //             }
-                    //         }
-
-                    //     } 
-                    // }
-                    if (!flag_prun)
+ 
+                    if (isprun(base_ext1, base_ext))
                     {
-                        flag_conbic = true;
+                        flag_prun = true;
                         break;
                     }
 
@@ -806,7 +1403,7 @@ void extend_mining(BiCluster *current_bic)
                 }
 
                 /* 若被剪枝则不构造，否则构造 */
-                if (!flag_conbic)
+                if (flag_prun)
                 {
                     base_ext = base_ext->next;
                     continue;
@@ -856,7 +1453,7 @@ void extend_mining(BiCluster *current_bic)
 
                     /* 基础双聚类深度扩展挖掘完成后，递归返回到这里，释放当前的基础双聚类空间 */
                     destroy_bicluster(current_bic);
-                    // current_bic = NULL; // 在destroy后已经置空了 
+                    //current_bic = NULL; // 在destroy后已经置空了
                 }
                 base_ext = base_ext->next;
             }
@@ -868,10 +1465,26 @@ void extend_mining(BiCluster *current_bic)
         get_pre_and_candi(current_bic);
         pruning(current_bic);
 
-        /* 经判断后输出，待补充 */
+        /* 经判断后输出 */
         if (current_bic->flag_output)
         {
-            ;
+            base_ext = current_bic->extlist;
+            while (NULL != base_ext)
+            {
+                fprintf(fresult, "%s", base_ext->extname);
+                base_ext = base_ext->next;
+            }
+            fprintf(fresult,":\n");
+            Wvalue_move = current_bic->wglist;
+            while(NULL != Wvalue_move)
+            {
+                if (Wvalue_move->time_end != 0)
+                {
+                    fprintf(fresult, "\t(%s,%d,%d)", Wvalue_move->wgname, Wvalue_move->time_start, Wvalue_move->time_end);
+                }
+                Wvalue_move = Wvalue_move->next;
+            }
+            fprintf(fresult,"\n");
         }
 
         /* ------------------------------------------------- */
@@ -898,7 +1511,7 @@ void extend_mining(BiCluster *current_bic)
                     base_ext->extname = move->extname;
                     base_ext->wgnode = NULL;
                     base_ext->next = NULL;
-                    current_bic->extlist = base_ext;
+                    next_bic->extlist = base_ext;
                 }
                 else
                 {
@@ -924,7 +1537,7 @@ void extend_mining(BiCluster *current_bic)
             Wvalue0 = candi->wgnode;
             while (NULL != Wvalue0)
             {
-                if (NULL != next_bic->wglist)
+                if (NULL == next_bic->wglist)
                 {
                     Wvalue_move = (WgNode*)malloc(sizeof(WgNode));
                     Wvalue_move->wgname = Wvalue0->wgname;
@@ -951,7 +1564,7 @@ void extend_mining(BiCluster *current_bic)
 
             /* 扩展挖掘完成后，递归返回到这里，释放掉当前扩展双聚类空间 */
             destroy_bicluster(next_bic);
-
+            //next_bic = NULL;
             /* 继续依据下一个候选节点扩展挖掘 */
             candi = candi->next;
         }
