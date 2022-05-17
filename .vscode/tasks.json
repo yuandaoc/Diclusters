@@ -2,17 +2,17 @@
     "tasks": [
         {
             "type": "cppbuild",
-            "label": "C/C++: g++.exe build",
-            "command": "E:\\GCC\\install\\mingw64\\bin\\g++.exe",
+            "label": "C/C++: g++.exe 生成活动文件",
+            "command": "D:\\CODE\\mingw64\\bin\\g++.exe",
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
                 //"${file}",
                 "${cwd}//src//*.cpp",
                 "${cwd}//app//*.cpp",
-                //"-s", // 确定好不再调试后使用此命令，可减少exe体积，但不能再调试，相当于编译release版本?
+                //"-s", // 确定好不再调试后使用此命令，可减少exe体积，但不能再调试，相当于编译release?
                 "-o",
-                "${cwd}//bin//alg1.exe"
+                "${cwd}//bin//DiCluster.exe"
             ],
             "options": {
                 "cwd": "${fileDirname}"

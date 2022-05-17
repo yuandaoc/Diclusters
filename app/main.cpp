@@ -93,6 +93,6 @@ int main(void)
     file_head = NULL;
 
     fclose(fresult);
-    printf("over");
+    puts("over");
     return 0;
 }
