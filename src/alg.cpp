@@ -13,7 +13,7 @@ void hello(void)
 
 bool compare(const WgNode& time1, const WgNode& time2)
 {
-    return time1.time_start < time2.time_end;
+    return time1.time_start < time2.time_start;
 }
 
 ExtendNode *save_filedata(const char *filepath)

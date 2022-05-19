@@ -74,7 +74,7 @@ int main(void)
     const char *filepath = "..//datasets//sample_data.txt";
 
     /* 输出文件路径 */
-    if (!(fresult = fopen("..//result//alg1-out-test.txt", "w")))
+    if (!(fresult = fopen("..//result//alg1-out-test1.txt", "w")))
     {
         puts("create file failed!");
         exit(-1);
